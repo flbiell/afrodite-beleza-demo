@@ -160,8 +160,8 @@ function home() {
   ].filter(item => item.product);
   return `<main id="main-content">
     <section class="spotlight" aria-labelledby="spotlight-title">
-      <div class="spotlight-visual"><img src="assets/products/l-eau-de-lily-blanche-desodorante-colonia-75ml-2.webp" alt="Frasco L’Eau de Lily Blanche em uma mão, sobre fundo rosa" width="1000" height="1029" fetchpriority="high"></div>
-      <div class="spotlight-content container-wide"><div class="spotlight-copy"><span class="spotlight-label">Em destaque na Afrodite</span><h1 id="spotlight-title">L’Eau de<br>Lily Blanche</h1><p>O Boticário · Desodorante Colônia 75 ml</p><div class="spotlight-actions"><a class="button button-dark" href="#/produto/${heroProduct.handle}">Ver fragrância ${icon('arrow', 18)}</a><span>${money(heroProduct.price)}</span></div></div><button class="spotlight-scroll" type="button" data-action="scroll-discover">Role para descobrir <span aria-hidden="true">↓</span></button></div>
+      <div class="spotlight-visual"><img src="assets/products/l-eau-de-lily-blanche-hero-1500.jpg" alt="Frasco L’Eau de Lily Blanche em uma mão, sobre fundo rosa" width="1500" height="1543" fetchpriority="high"></div>
+      <div class="spotlight-content"><div class="spotlight-copy"><span class="spotlight-label">Em destaque na Afrodite</span><h1 id="spotlight-title">L’Eau de<br>Lily Blanche</h1><p>O Boticário · Desodorante Colônia 75 ml</p><div class="spotlight-actions"><a class="button button-dark" href="#/produto/${heroProduct.handle}">Ver fragrância ${icon('arrow', 18)}</a><span>${money(heroProduct.price)}</span></div></div><button class="spotlight-scroll" type="button" data-action="scroll-discover">Role para descobrir <span aria-hidden="true">↓</span></button></div>
     </section>
     <section id="descobrir" class="home-categories container-wide" aria-labelledby="categories-title"><div class="home-section-head"><div><h2 id="categories-title">O que você procura?</h2><p>Explore os produtos por categoria.</p></div><a class="section-link" href="#/colecao/todos">Ver tudo ${icon('arrow', 18)}</a></div><div class="category-grid">${['perfumes', 'presentes', 'maquiagem', 'cuidados', 'skincare'].map(categoryCard).join('')}</div></section>
     <section class="featured-section home-featured" aria-labelledby="featured-title"><div class="container-wide"><div class="home-section-head"><div><h2 id="featured-title">Em destaque</h2><p>Uma seleção do catálogo da Afrodite.</p></div><a class="section-link" href="#/colecao/todos">Todos os produtos ${icon('arrow', 18)}</a></div><div class="product-grid home-products">${featureItems.map(p => productCard(p)).join('')}</div></div></section>
@@ -279,13 +279,7 @@ function render() {
 
 function updateHomeMotion() {
   motionFrame = 0;
-  const spotlight = document.querySelector('.spotlight');
-  if (!spotlight) return;
-  const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-  if (!reducedMotion) {
-    const progress = Math.max(0, Math.min(1, -spotlight.getBoundingClientRect().top / 560));
-    spotlight.style.setProperty('--spotlight-scale', (1 + progress * .045).toFixed(3));
-  }
+  if (!document.querySelector('.scroll-story')) return;
   const steps = [...document.querySelectorAll('[data-story-step]')];
   if (!steps.length) return;
   let active = 0;
