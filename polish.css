@@ -136,11 +136,13 @@ h1 em, h2 em { font-style: normal; color: inherit; }
   .home-categories { padding-top: 76px; padding-bottom: 80px; }
   .home-featured { padding: 78px 0 84px; }
   .scroll-story { padding-top: 78px; padding-bottom: 70px; }
-  .story-layout { display: block; }
-  .story-stage { display: none; }
-  .story-step { min-height: 0; padding: 28px 0 60px; margin-bottom: 24px; }
+  .story-layout { display: flex; flex-direction: column; gap: 0; }
+  .story-stage { order: -1; position: sticky; top: 94px; z-index: 2; display: block; width: 100%; height: min(43svh, 430px); min-height: 250px; background: #f3eeec; }
+  .story-image { object-fit: contain; transform: scale(1.035); }
+  .story-step { min-height: min(44svh, 390px); padding: 36px 0 48px; margin: 0; transition: opacity .35s ease; }
+  .story-step:not(.is-active) { opacity: .62; }
   .story-step h3 { font-size: clamp(37px, 7vw, 56px); }
-  .story-inline-image { display: block; width: 100%; aspect-ratio: 1.15; object-fit: cover; margin-top: 28px; }
+  .story-inline-image { display: none; }
   .home-perfumes { padding-top: 75px; padding-bottom: 82px; }
 }
 @media (max-width: 600px) {
@@ -151,6 +153,8 @@ h1 em, h2 em { font-style: normal; color: inherit; }
   .wordmark small { font-size: 6px; }
   .spotlight-visual { aspect-ratio: 1; }
   .spotlight-content { padding-top: 29px; padding-bottom: 40px; }
+  .spotlight-visual { animation: mobile-image-enter .7s cubic-bezier(.2,.7,.2,1) both; }
+  .spotlight-copy { animation: mobile-copy-enter .65s .18s cubic-bezier(.2,.7,.2,1) both; }
   .spotlight-label { font-size: 12px; margin-bottom: 12px; }
   .spotlight h1 { font-size: clamp(45px, 12vw, 65px); margin-bottom: 14px; }
   .spotlight-copy > p { font-size: 13px; margin-bottom: 24px; }
@@ -165,7 +169,8 @@ h1 em, h2 em { font-style: normal; color: inherit; }
   .home-section-head .section-link { font-size: 12px; white-space: nowrap; margin-top: 8px; }
   .home-categories .category-grid { display: flex; gap: 10px; overflow-x: auto; scroll-snap-type: x mandatory; margin-right: calc(-1 * var(--pad)); padding-right: var(--pad); scrollbar-width: none; }
   .home-categories .category-grid::-webkit-scrollbar { display: none; }
-  .home-categories .category-card { flex: 0 0 min(47vw, 230px); scroll-snap-align: start; }
+  .home-categories .category-card { flex: 0 0 min(47vw, 230px); scroll-snap-align: start; transition: transform .2s ease; }
+  .home-categories .category-card:active { transform: scale(.98); }
   .home-categories .category-visual { height: min(49vw, 240px); }
   .home-categories .category-caption { min-height: 83px; padding: 12px; }
   .home-categories .category-caption h3 { font-size: 17px; }
@@ -175,10 +180,16 @@ h1 em, h2 em { font-style: normal; color: inherit; }
   .product-brand { font-size: 9px; }
   .card-prices strong { font-size: 13px; }
   .story-step p { font-size: 13px; }
+  .story-stage { top: 89px; height: min(42svh, 390px); }
+  .story-step { min-height: min(43svh, 360px); }
+  .button:active, .product-card:active .product-image-wrap { transform: scale(.98); }
+  .product-image-wrap { transition: transform .2s ease; }
   .demo-note .container-wide { align-items: start; flex-direction: column; gap: 8px; }
   .demo-note p { font-size: 12px; }
   .demo-note a { font-size: 12px; }
 }
+@keyframes mobile-image-enter { from { opacity: .45; transform: translateY(16px); } to { opacity: 1; transform: translateY(0); } }
+@keyframes mobile-copy-enter { from { opacity: 0; transform: translateY(18px); } to { opacity: 1; transform: translateY(0); } }
 @media (max-width: 430px) {
   .home-section-head { flex-direction: column; gap: 10px; }
   .home-section-head .section-link { margin-top: 0; }
@@ -191,6 +202,9 @@ h1 em, h2 em { font-style: normal; color: inherit; }
   .product-image-wrap .product-image-secondary { display: none; }
 }
 @media (prefers-reduced-motion: reduce) {
-  .spotlight-visual img, .story-image, .story-step a svg { transition: none; transform: none !important; }
+  .spotlight-visual, .spotlight-copy { animation: none; }
+  .spotlight-visual img, .story-image, .story-step, .category-card, .story-step a svg { transition: none; transform: none !important; }
+  .story-step:not(.is-active) { opacity: 1; }
+  .button:active, .product-card:active .product-image-wrap { transform: none; }
   .product-image-wrap .product-image-secondary { display: none; }
 }

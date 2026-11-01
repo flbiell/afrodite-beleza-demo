@@ -283,8 +283,11 @@ function updateHomeMotion() {
   const steps = [...document.querySelectorAll('[data-story-step]')];
   if (!steps.length) return;
   let active = 0;
-  const anchor = window.innerHeight * .52;
+  const stage = document.querySelector('.story-stage');
+  const mobileStory = window.matchMedia('(max-width: 768px)').matches;
+  const anchor = mobileStory && stage ? stage.getBoundingClientRect().bottom + 44 : window.innerHeight * .52;
   steps.forEach((step, index) => { if (step.getBoundingClientRect().top <= anchor) active = index; });
+  steps.forEach((step, index) => step.classList.toggle('is-active', index === active));
   document.querySelectorAll('[data-story-image]').forEach((image, index) => image.classList.toggle('is-active', index === active));
   document.querySelectorAll('[data-story-progress]').forEach((segment, index) => segment.classList.toggle('is-active', index <= active));
 }
