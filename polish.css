@@ -36,7 +36,7 @@ h1 em, h2 em { font-style: normal; color: inherit; }
 /* The hero uses one real catalogue photograph, with text kept off the product. */
 .spotlight { position: relative; height: clamp(620px, 78svh, 830px); overflow: hidden; background: #f1cdcf; }
 .spotlight-visual, .spotlight-visual img { position: absolute; inset: 0; width: 100%; height: 100%; }
-.spotlight-visual img { width: 110%; object-fit: cover; object-position: center 44%; transform: scale(var(--spotlight-scale, 1)); transform-origin: center left; transition: transform .12s linear; }
+.spotlight-visual img { left: 7%; width: 110%; object-fit: cover; object-position: center 44%; transform: scale(var(--spotlight-scale, 1)); transform-origin: center left; transition: transform .12s linear; }
 .spotlight::after { content: ''; position: absolute; inset: 0; pointer-events: none; background: linear-gradient(90deg, #f3d9dbec 0%, #f3d9dbbf 26%, #f3d9db38 48%, transparent 70%); }
 .spotlight-content { height: 100%; position: relative; z-index: 1; display: flex; align-items: center; }
 .spotlight-copy { max-width: 500px; padding-bottom: 34px; }
@@ -129,7 +129,7 @@ h1 em, h2 em { font-style: normal; color: inherit; }
   .header-main { height: 68px; }
   .spotlight { height: auto; display: flex; flex-direction: column; }
   .spotlight-visual { position: relative; height: min(68vw, 520px); min-height: 340px; order: 1; }
-  .spotlight-visual img { width: 100%; object-position: center 40%; }
+  .spotlight-visual img { left: 0; width: 100%; object-position: center 40%; }
   .spotlight::after { display: none; }
   .spotlight-content { order: 2; height: auto; display: block; padding-top: 32px; padding-bottom: 42px; }
   .spotlight-copy { padding: 0; }
