@@ -1,11 +1,11 @@
 const CATEGORIES = {
-  perfumes: { name: 'Perfumes', kicker: 'A arte de deixar uma impressão', description: 'Fragrâncias para diferentes momentos, estilos e formas de expressão.', image: 'l-eau-de-lily-blanche-desodorante-colonia-75ml' },
-  presentes: { name: 'Kits e presentes', kicker: 'Para transformar um gesto em memória', description: 'Conjuntos prontos para escolher com carinho e presentear.', image: 'kit-presente-especial-malbec-3-itens' },
-  maquiagem: { name: 'Maquiagem', kicker: 'Pequenos gestos, muitas possibilidades', description: 'Paletas e cores para compor a beleza do seu jeito.', image: 'paleta-de-sombra-niina-secrets-neutrals-5-6g' },
-  cuidados: { name: 'Corpo e banho', kicker: 'Tempo para cuidar de você', description: 'Texturas e aromas para os rituais de todos os dias.', image: 'locao-aveludada-desodorante-corporal-nativa-spa-cereja-rouge-400ml' },
-  skincare: { name: 'Skincare', kicker: 'Cuidado em cada detalhe', description: 'Uma pequena seleção de cuidados para a pele.', image: 'lancome-absolue-revitalisant-eye-cream-firming-eye-area-and-reducing-fine-lines-0-7oz-20ml' },
-  acessorios: { name: 'Acessórios', kicker: 'Os detalhes fazem parte', description: 'Itens de apoio à sua rotina de beleza.', image: '1pcs-silver-handle-nail-dust-brush-large-soft-bristle-manicure-cleanup-brush-professional-nail-art-tool-for-acrylic' },
-  todos: { name: 'Todos os produtos', kicker: 'Explore a seleção', description: 'Perfumes, maquiagem, presentes e cuidados em um só lugar.' },
+  perfumes: { name: 'Perfumes', description: 'Colônias, eau de parfum e body splashes do catálogo.', image: 'l-eau-de-lily-blanche-desodorante-colonia-75ml' },
+  presentes: { name: 'Kits e presentes', description: 'Conjuntos de produtos para presentear.', image: 'kit-presente-especial-malbec-3-itens' },
+  maquiagem: { name: 'Maquiagem', description: 'Paletas, cores e produtos para o rosto.', image: 'paleta-de-sombra-niina-secrets-neutrals-5-6g' },
+  cuidados: { name: 'Corpo e banho', description: 'Hidratantes, loções e produtos para o banho.', image: 'locao-aveludada-desodorante-corporal-nativa-spa-cereja-rouge-400ml' },
+  skincare: { name: 'Skincare', description: 'Produtos de cuidado para a pele.', image: 'lancome-absolue-revitalisant-eye-cream-firming-eye-area-and-reducing-fine-lines-0-7oz-20ml' },
+  acessorios: { name: 'Acessórios', description: 'Acessórios da seleção Afrodite.', image: '1pcs-silver-handle-nail-dust-brush-large-soft-bristle-manicure-cleanup-brush-professional-nail-art-tool-for-acrylic' },
+  todos: { name: 'Todos os produtos', description: 'Perfumes, maquiagem, presentes e cuidados em um só lugar.' },
 };
 
 const FEATURED = [
@@ -22,6 +22,7 @@ const PERFUME_EDIT = [
 ];
 const SHORT_NAMES = {
   'l-eau-de-lily-blanche-desodorante-colonia-75ml': 'L’Eau de Lily Blanche Colônia 75ml',
+  'malbec-20-anos-desodorante-colonia-100ml': 'Malbec 20 Anos Colônia 100ml',
   'kit-presente-especial-malbec-3-itens': 'Kit Presente Malbec · 3 itens',
   'paleta-de-sombra-niina-secrets-neutrals-5-6g': 'Paleta Niina Secrets Neutrals 5,6g',
   'locao-aveludada-desodorante-corporal-nativa-spa-cereja-rouge-400ml': 'Loção Nativa SPA Cereja Rouge 400ml',
@@ -54,6 +55,7 @@ let catalogInfo = {};
 let cart = loadCart();
 let state = { brand: new Set(), maxPrice: 'all', sort: 'featured', gallery: 0, qty: 1, selectedVariant: null, menu: false, search: false, drawer: false, filters: false };
 let toastTimer;
+let motionFrame = 0;
 
 function loadCart() {
   try { return JSON.parse(localStorage.getItem('afrodite-demo-cart-v1')) || []; }
@@ -119,10 +121,12 @@ function footer() {
 function productCard(p, { compact = false } = {}) {
   if (!p) return '';
   const sale = p.compareAt && p.compareAt > p.price;
+  const secondImage = p.images?.[1];
   return `<article class="product-card ${compact ? 'product-card-compact' : ''}">
     <a class="product-image-wrap" href="#/produto/${encodeURIComponent(p.handle)}" aria-label="Ver ${escapeHtml(p.title)}">
       ${sale ? '<span class="product-tag">Oferta</span>' : ''}
       <img src="${escapeHtml(image(p))}" alt="${escapeHtml(p.title)}" loading="lazy" decoding="async">
+      ${secondImage ? `<img class="product-image-secondary" src="${escapeHtml(secondImage)}" alt="" aria-hidden="true" loading="lazy" decoding="async">` : ''}
       <span class="card-view">Conhecer produto ${icon('arrow', 17)}</span>
     </a>
     <div class="product-card-details"><div class="product-brand">${escapeHtml(p.brand || 'Marca não informada')}</div>
@@ -138,9 +142,10 @@ function sectionHeading(kicker, title, action = '') {
 
 function categoryCard(key, index) {
   const c = CATEGORIES[key]; const p = productByHandle(c.image);
+  const count = catalog.filter(p => p.available && p.category === key).length;
   return `<a class="category-card category-card-${index + 1}" href="#/colecao/${key}">
     <div class="category-visual"><img src="${escapeHtml(image(p))}" alt="" loading="lazy"></div>
-    <div class="category-caption"><span>${catalog.filter(p => p.available && p.category === key).length} produtos</span><h3>${escapeHtml(c.name)}</h3><span class="round-arrow">${icon('arrow', 20)}</span></div>
+    <div class="category-caption"><span>${count} ${count === 1 ? 'produto' : 'produtos'}</span><h3>${escapeHtml(c.name)}</h3><span class="round-arrow">${icon('arrow', 20)}</span></div>
   </a>`;
 }
 
@@ -148,39 +153,21 @@ function home() {
   const heroProduct = productByHandle(FEATURED[0]);
   const featureItems = FEATURED.map(productByHandle).filter(Boolean);
   const fragranceItems = PERFUME_EDIT.map(productByHandle).filter(Boolean);
+  const storyItems = [
+    { product: productByHandle('malbec-20-anos-desodorante-colonia-100ml'), category: 'Perfumaria', image: 'assets/products/malbec-20-anos-desodorante-colonia-100ml-2.webp', note: 'Desodorante Colônia 100 ml' },
+    { product: productByHandle('paleta-de-sombra-niina-secrets-neutrals-5-6g'), category: 'Maquiagem', image: 'assets/products/paleta-de-sombra-niina-secrets-neutrals-5-6g-2.jpg', note: 'Paleta de sombras 5,6 g' },
+    { product: productByHandle('kit-presente-especial-malbec-3-itens'), category: 'Presentes', image: 'assets/products/kit-presente-especial-malbec-3-itens-1.jpg', note: 'Kit com três itens' },
+  ].filter(item => item.product);
   return `<main id="main-content">
-    <section class="hero container-wide" aria-labelledby="hero-title">
-      <div class="hero-copy"><span class="eyebrow"><span class="little-star">✳</span> AFRODITE BELEZA & CUIDADO</span>
-        <h1 id="hero-title">O encanto de <em>escolher bem.</em></h1>
-        <p>Perfumes, maquiagem e cuidados para descobrir. Presentes para tornar o momento ainda mais especial.</p>
-        <div class="hero-actions"><a class="button button-dark" href="#/colecao/todos">Explorar a seleção ${icon('arrow', 18)}</a><a class="text-link" href="#/colecao/presentes">Encontrar um presente ${icon('arrow', 16)}</a></div>
-        <div class="hero-index"><span class="fine-line"></span> UMA SELEÇÃO MULTIMARCAS</div>
-      </div>
-      <div class="hero-visual"><img class="hero-editorial" src="assets/products/l-eau-de-lily-blanche-desodorante-colonia-75ml-2.webp" alt="L’Eau de Lily Blanche em uma fotografia do catálogo da Afrodite" width="1000" height="1029" fetchpriority="high">
-        <div class="hero-product-note"><img src="${escapeHtml(image(heroProduct))}" alt="${escapeHtml(heroProduct.title)}"><div><span>EM DESTAQUE</span><strong>${escapeHtml(niceName(heroProduct))}</strong><small>${money(heroProduct.price)}</small></div><a href="#/produto/${heroProduct.handle}" aria-label="Ver produto em destaque">${icon('arrow', 18)}</a></div>
-      </div>
+    <section class="spotlight" aria-labelledby="spotlight-title">
+      <div class="spotlight-visual"><img src="assets/products/l-eau-de-lily-blanche-desodorante-colonia-75ml-2.webp" alt="Frasco L’Eau de Lily Blanche em uma mão, sobre fundo rosa" width="1000" height="1029" fetchpriority="high"></div>
+      <div class="spotlight-content container-wide"><div class="spotlight-copy"><span class="spotlight-label">Em destaque na Afrodite</span><h1 id="spotlight-title">L’Eau de<br>Lily Blanche</h1><p>O Boticário · Desodorante Colônia 75 ml</p><div class="spotlight-actions"><a class="button button-dark" href="#/produto/${heroProduct.handle}">Ver fragrância ${icon('arrow', 18)}</a><span>${money(heroProduct.price)}</span></div></div><button class="spotlight-scroll" type="button" data-action="scroll-discover">Role para descobrir <span aria-hidden="true">↓</span></button></div>
     </section>
-    <div class="intro-line container-wide"><span>ESCOLHAS PARA VOCÊ</span><p>Uma curadoria que vai do perfume favorito ao presente que faz lembrar.</p><span>${catalog.filter(p => p.available).length} PRODUTOS</span></div>
-    <section class="section-space container-wide" aria-labelledby="categories-title">
-      ${sectionHeading('ENCONTRE O SEU CAMINHO', '<span id="categories-title">Explore por categoria</span>', '<a class="section-link" href="#/colecao/todos">Ver todos os produtos '+icon('arrow', 18)+'</a>')}
-      <div class="category-grid">${['perfumes', 'presentes', 'maquiagem', 'cuidados'].map(categoryCard).join('')}</div>
-      <a class="quiet-category-link" href="#/colecao/skincare">Descobrir também a seleção de skincare ${icon('arrow', 16)}</a>
-    </section>
-    <section class="section-space featured-section" aria-labelledby="featured-title"><div class="container-wide">
-      ${sectionHeading('A SELEÇÃO AFRODITE', '<span id="featured-title">Detalhes que encantam</span>', '<a class="section-link" href="#/colecao/todos">Explorar a curadoria '+icon('arrow', 18)+'</a>')}
-      <div class="product-grid home-products">${featureItems.map(p => productCard(p)).join('')}</div>
-    </div></section>
-    <section class="editorial-section container-wide" aria-labelledby="editorial-title">
-      <div class="editorial-photo"><img src="${escapeHtml(image(productByHandle('kit-presente-especial-malbec-3-itens')))}" alt="Kit Presente Especial Malbec, produto do catálogo da Afrodite" loading="lazy"></div>
-      <div class="editorial-copy"><span class="eyebrow">GESTOS QUE FICAM</span><h2 id="editorial-title">O cuidado de <em>presentear.</em></h2><p>Uma seleção de kits para tornar a escolha mais simples — e o momento ainda mais especial.</p><a class="button button-outline" href="#/colecao/presentes">Conhecer os kits ${icon('arrow', 18)}</a><div class="editorial-rule"><span>AFRODITE / PRESENTES</span><span>${catalog.filter(p => p.available && p.category === 'presentes').length} OPÇÕES</span></div></div>
-    </section>
-    <section class="section-space container-wide perfume-feature" aria-labelledby="perfume-title">
-      ${sectionHeading('PERFUMARIA', '<span id="perfume-title">Uma fragrância, uma presença.</span>', '<a class="section-link" href="#/colecao/perfumes">Todos os perfumes '+icon('arrow', 18)+'</a>')}
-      <div class="product-grid">${fragranceItems.map(p => productCard(p)).join('')}</div>
-    </section>
-    <section class="service-panel" aria-labelledby="service-title"><div class="container-wide"><span class="eyebrow">INFORMAÇÕES COM CLAREZA</span><h2 id="service-title">A beleza está nos <em>detalhes.</em></h2>
-      <div class="service-grid"><a href="#/atendimento"><span class="service-index">01</span><h3>Atendimento</h3><p>Encontre o canal de contato da loja publicada e saiba o que está disponível nesta demo.</p>${icon('arrow', 20)}</a><a href="https://afroditebelezaecuidado.com/policies/privacy-policy" target="_blank" rel="noopener noreferrer"><span class="service-index">02</span><h3>Privacidade</h3><p>Consulte a política de privacidade publicada pela loja.</p>${icon('arrow', 20)}</a><a href="#/carrinho"><span class="service-index">03</span><h3>Experimente a demo</h3><p>Adicione produtos ao carrinho local. Não há pagamento nem pedidos aqui.</p>${icon('arrow', 20)}</a></div>
-    </div></section>
+    <section id="descobrir" class="home-categories container-wide" aria-labelledby="categories-title"><div class="home-section-head"><div><h2 id="categories-title">O que você procura?</h2><p>Explore os produtos por categoria.</p></div><a class="section-link" href="#/colecao/todos">Ver tudo ${icon('arrow', 18)}</a></div><div class="category-grid">${['perfumes', 'presentes', 'maquiagem', 'cuidados', 'skincare'].map(categoryCard).join('')}</div></section>
+    <section class="featured-section home-featured" aria-labelledby="featured-title"><div class="container-wide"><div class="home-section-head"><div><h2 id="featured-title">Em destaque</h2><p>Uma seleção do catálogo da Afrodite.</p></div><a class="section-link" href="#/colecao/todos">Todos os produtos ${icon('arrow', 18)}</a></div><div class="product-grid home-products">${featureItems.map(p => productCard(p)).join('')}</div></div></section>
+    <section class="scroll-story container-wide" aria-labelledby="story-title"><div class="home-section-head story-head"><div><h2 id="story-title">Descubra mais de perto</h2><p>Produtos reais da seleção, em três categorias.</p></div></div><div class="story-layout"><div class="story-steps">${storyItems.map((item, index) => `<article class="story-step" data-story-step="${index}"><span class="story-category">${item.category}</span><h3>${escapeHtml(niceName(item.product))}</h3><p>${escapeHtml(item.note)} · ${escapeHtml(item.product.brand || 'Marca não informada')}</p><strong>${money(item.product.price)}</strong><a href="#/produto/${encodeURIComponent(item.product.handle)}">Ver produto ${icon('arrow', 18)}</a><img class="story-inline-image" src="${item.image}" alt="${escapeHtml(item.product.title)}" loading="lazy"></article>`).join('')}</div><div class="story-stage" aria-hidden="true"><div class="story-image-stack">${storyItems.map((item, index) => `<img class="story-image ${index === 0 ? 'is-active' : ''}" data-story-image="${index}" src="${item.image}" alt="" loading="lazy">`).join('')}</div><div class="story-progress">${storyItems.map((_, index) => `<span class="${index === 0 ? 'is-active' : ''}" data-story-progress="${index}"></span>`).join('')}</div></div></div></section>
+    <section class="home-perfumes container-wide" aria-labelledby="perfume-title"><div class="home-section-head"><div><h2 id="perfume-title">Perfumaria</h2><p>Fragrâncias do catálogo para conhecer.</p></div><a class="section-link" href="#/colecao/perfumes">Ver perfumes ${icon('arrow', 18)}</a></div><div class="product-grid">${fragranceItems.map(p => productCard(p)).join('')}</div></section>
+    <aside class="demo-note"><div class="container-wide"><p>Esta é uma demonstração visual. O carrinho é local e não conclui compras.</p><a href="#/atendimento">Como funciona a demo ${icon('arrow', 18)}</a></div></aside>
   </main>`;
 }
 
@@ -214,7 +201,7 @@ function collectionPage(r) {
   const visualProduct = productByHandle(c.image || 'l-eau-de-lily-blanche-desodorante-colonia-75ml');
   return `<main id="main-content"><div class="container-wide">
     <nav class="breadcrumbs" aria-label="Caminho"><a href="#/">Início</a><span>/</span><span>${isSearch ? 'Busca' : escapeHtml(c.name)}</span></nav>
-    <section class="collection-hero ${isSearch ? 'search-hero' : ''}"><div><span class="eyebrow">${isSearch ? 'RESULTADOS DA BUSCA' : escapeHtml(c.kicker).toUpperCase()}</span>
+    <section class="collection-hero ${isSearch ? 'search-hero' : ''}"><div>
       <h1>${isSearch ? `Busca por <em>“${escapeHtml(query)}”</em>` : escapeHtml(c.name)}</h1><p>${isSearch ? `${result.length} ${result.length === 1 ? 'produto encontrado' : 'produtos encontrados'} para sua busca.` : escapeHtml(c.description)}</p></div>
       ${!isSearch && key !== 'todos' ? `<img src="${escapeHtml(image(visualProduct))}" alt="" loading="eager">` : `<div class="collection-ornament" aria-hidden="true">A</div>`}
     </section>
@@ -236,7 +223,7 @@ function productPage(r) {
   return `<main id="main-content"><div class="container-wide">
     <nav class="breadcrumbs" aria-label="Caminho"><a href="#/">Início</a><span>/</span><a href="#/colecao/${p.category}">${escapeHtml(categoryName(p.category))}</a><span>/</span><span>${escapeHtml(niceName(p))}</span></nav>
     <div class="product-layout"><div class="product-gallery"><div class="main-product-image"><img src="${escapeHtml(image(p, state.gallery))}" alt="${escapeHtml(p.title)} — imagem ${state.gallery + 1}" decoding="async"></div><div class="gallery-thumbs">${p.images.map((src, index) => `<button type="button" data-action="gallery" data-index="${index}" class="${state.gallery === index ? 'active' : ''}" aria-label="Mostrar imagem ${index + 1} de ${p.images.length}" aria-pressed="${state.gallery === index}"><img src="${escapeHtml(src)}" alt=""></button>`).join('')}</div></div>
-      <div class="product-info"><span class="eyebrow">${escapeHtml(p.brand || 'MARCA NÃO INFORMADA')}</span><h1>${escapeHtml(p.title)}</h1><div class="product-category-label">${escapeHtml(categoryName(p.category))}</div><div class="product-price"><strong>${money(selected.price)}</strong>${sale ? `<del>${money(p.compareAt)}</del><span class="sale-note">Preço do catálogo</span>` : ''}</div>
+      <div class="product-info"><span class="eyebrow">${escapeHtml(p.brand || 'Marca não informada')}</span><h1>${escapeHtml(niceName(p))}</h1><div class="product-category-label">${escapeHtml(categoryName(p.category))}</div><div class="product-price"><strong>${money(selected.price)}</strong>${sale ? `<del>${money(p.compareAt)}</del><span class="sale-note">Preço do catálogo</span>` : ''}</div>
         <p class="product-intro">${escapeHtml(intro)}</p>
         ${p.variants.length > 1 ? `<label class="variant-label">Opção<select data-variant>${p.variants.map(v => `<option value="${v.id}" ${v.id === selected.id ? 'selected' : ''}>${escapeHtml(v.title)}</option>`).join('')}</select></label>` : ''}
         <div class="purchase-row"><div class="quantity-control"><button data-action="qty-minus" type="button" aria-label="Diminuir quantidade">${icon('minus', 17)}</button><span aria-live="polite">${state.qty}</span><button data-action="qty-plus" type="button" aria-label="Aumentar quantidade">${icon('plus', 17)}</button></div><button class="button button-dark add-main" data-action="add" data-handle="${escapeHtml(p.handle)}" type="button">Adicionar ao carrinho ${icon('arrow', 18)}</button></div>
@@ -256,13 +243,13 @@ function cartContent(drawer = false) {
     : `<div class="empty-cart"><span class="empty-icon">✳</span><h2>Seu carrinho está vazio.</h2><p>Explore a seleção e encontre algo para o seu momento.</p><a class="button button-dark" href="#/colecao/todos">Descobrir produtos ${icon('arrow', 18)}</a></div>`;
 }
 function cartPage() {
-  return `<main id="main-content" class="cart-page"><div class="container-wide"><nav class="breadcrumbs" aria-label="Caminho"><a href="#/">Início</a><span>/</span><span>Carrinho</span></nav><div class="cart-page-head"><span class="eyebrow">SUA SELEÇÃO</span><h1>O seu carrinho<span class="title-dot">.</span></h1><p>Uma prévia local para explorar a experiência. Nenhum pedido será criado.</p></div><div class="cart-page-content">${cartContent()}</div></div></main>`;
+  return `<main id="main-content" class="cart-page"><div class="container-wide"><nav class="breadcrumbs" aria-label="Caminho"><a href="#/">Início</a><span>/</span><span>Carrinho</span></nav><div class="cart-page-head"><h1>Carrinho demonstrativo</h1><p>Os itens ficam apenas neste navegador. Nenhum pedido será criado.</p></div><div class="cart-page-content">${cartContent()}</div></div></main>`;
 }
 function aboutPage() {
-  return `<main id="main-content" class="story-page"><div class="container-wide"><nav class="breadcrumbs" aria-label="Caminho"><a href="#/">Início</a><span>/</span><span>A Afrodite</span></nav><section class="story-hero"><div><span class="eyebrow">SOBRE ESTA PROPOSTA</span><h1>Uma nova forma de <em>encontrar beleza.</em></h1><p>A Afrodite reúne em seu catálogo público perfumes, presentes, maquiagem e cuidados pessoais de diferentes marcas. Esta demonstração propõe uma experiência visual mais clara e elegante para descobrir essa seleção.</p><a class="button button-dark" href="#/colecao/todos">Explorar a seleção ${icon('arrow', 18)}</a></div><div class="story-photo"><img src="${escapeHtml(image(productByHandle('l-eau-de-lily-blanche-desodorante-colonia-75ml')))}" alt="L’Eau de Lily Blanche, item do catálogo da Afrodite"></div></section><div class="story-columns"><div><span>01 / O CATÁLOGO</span><h2>Escolhas reais.</h2><p>As imagens, os nomes e os preços desta proposta foram obtidos do catálogo público da loja. A organização por categoria é uma camada visual criada somente para esta demonstração.</p></div><div><span>02 / A DEMONSTRAÇÃO</span><h2>Uma visão possível.</h2><p>Textos institucionais definitivos, políticas comerciais e identidade oficial dependem de aprovação. Esta página não inventa história da empresa, certificações nem condições de compra.</p></div></div></div></main>`;
+  return `<main id="main-content" class="story-page"><div class="container-wide"><nav class="breadcrumbs" aria-label="Caminho"><a href="#/">Início</a><span>/</span><span>A Afrodite</span></nav><section class="story-hero"><div><h1>Sobre esta demonstração</h1><p>A Afrodite reúne perfumes, presentes, maquiagem e cuidados pessoais de diferentes marcas. Esta página apresenta uma proposta visual para navegar pelo catálogo público da loja.</p><a class="button button-dark" href="#/colecao/todos">Ver produtos ${icon('arrow', 18)}</a></div><div class="story-photo"><img src="${escapeHtml(image(productByHandle('l-eau-de-lily-blanche-desodorante-colonia-75ml')))}" alt="L’Eau de Lily Blanche, item do catálogo da Afrodite"></div></section><div class="story-columns"><div><h2>O catálogo</h2><p>Imagens, nomes e preços foram obtidos do catálogo público. A divisão por categoria foi criada para esta demonstração.</p></div><div><h2>O que está em avaliação</h2><p>Esta proposta ainda depende de aprovação da loja. Não há pagamento nem criação de pedidos neste ambiente.</p></div></div></div></main>`;
 }
 function supportPage() {
-  return `<main id="main-content" class="support-page"><div class="container-wide"><nav class="breadcrumbs" aria-label="Caminho"><a href="#/">Início</a><span>/</span><span>Atendimento</span></nav><div class="support-intro"><span class="eyebrow">INFORMAÇÕES</span><h1>Conte com a <em>clareza.</em></h1><p>Esta página apresenta apenas canais e informações que foi possível confirmar na loja publicada.</p></div><div class="support-grid"><a href="https://afroditebelezaecuidado.com/pages/contact" target="_blank" rel="noopener noreferrer"><span class="service-index">01</span><h2>Falar com a loja</h2><p>A página pública de contato da Afrodite oferece um formulário de mensagem.</p><span class="link-bottom">Abrir contato da loja publicada ${icon('arrow', 19)}</span></a><a href="https://afroditebelezaecuidado.com/policies/privacy-policy" target="_blank" rel="noopener noreferrer"><span class="service-index">02</span><h2>Privacidade</h2><p>A política de privacidade publicada está disponível para consulta.</p><span class="link-bottom">Ler política de privacidade ${icon('arrow', 19)}</span></a><div><span class="service-index">03</span><h2>Sobre compras</h2><p>Este ambiente não processa pagamento, frete ou pedidos. Condições de troca, entrega e valor final devem ser confirmadas na loja publicada antes da compra.</p></div></div></div></main>`;
+  return `<main id="main-content" class="support-page"><div class="container-wide"><nav class="breadcrumbs" aria-label="Caminho"><a href="#/">Início</a><span>/</span><span>Atendimento</span></nav><div class="support-intro"><h1>Atendimento e informações</h1><p>Consulte os canais públicos da loja e os limites desta demonstração.</p></div><div class="support-grid"><a href="https://afroditebelezaecuidado.com/pages/contact" target="_blank" rel="noopener noreferrer"><h2>Falar com a loja</h2><p>A página pública de contato da Afrodite oferece um formulário de mensagem.</p><span class="link-bottom">Abrir contato da loja publicada ${icon('arrow', 19)}</span></a><a href="https://afroditebelezaecuidado.com/policies/privacy-policy" target="_blank" rel="noopener noreferrer"><h2>Privacidade</h2><p>A política de privacidade publicada está disponível para consulta.</p><span class="link-bottom">Ler política de privacidade ${icon('arrow', 19)}</span></a><div><h2>Sobre compras</h2><p>Este ambiente não processa pagamento, frete ou pedidos. Confirme as condições e o valor final diretamente na loja publicada.</p></div></div></div></main>`;
 }
 function notFound() { return `<main id="main-content"><div class="container-wide empty-page"><span class="empty-icon">✳</span><h1>Não encontramos esta página.</h1><p>Volte para a seleção e continue explorando.</p><a class="button button-dark" href="#/colecao/todos">Ver produtos ${icon('arrow', 18)}</a></div></main>`; }
 
@@ -285,9 +272,31 @@ function render() {
   document.getElementById('app').innerHTML = header() + content + footer();
   document.getElementById('overlay-root').innerHTML = overlays();
   document.body.classList.toggle('overlay-active', state.menu || state.search || state.drawer);
-  const pageTitle = r.type === 'home' ? 'Afrodite Beleza e Cuidado' : r.type === 'produto' ? productByHandle(r.slug)?.title : r.type === 'colecao' ? categoryName(r.slug) : r.type === 'busca' ? 'Busca' : r.type === 'carrinho' ? 'Carrinho' : r.type === 'sobre' ? 'A Afrodite' : 'Atendimento';
+  const pageTitle = r.type === 'home' ? 'Afrodite Beleza e Cuidado' : r.type === 'produto' ? niceName(productByHandle(r.slug) || { title: 'Produto' }) : r.type === 'colecao' ? categoryName(r.slug) : r.type === 'busca' ? 'Busca' : r.type === 'carrinho' ? 'Carrinho' : r.type === 'sobre' ? 'A Afrodite' : 'Atendimento';
   document.title = `${pageTitle || 'Afrodite'} — demonstração visual`;
+  queueHomeMotion();
 }
+
+function updateHomeMotion() {
+  motionFrame = 0;
+  const spotlight = document.querySelector('.spotlight');
+  if (!spotlight) return;
+  const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  if (!reducedMotion) {
+    const progress = Math.max(0, Math.min(1, -spotlight.getBoundingClientRect().top / 560));
+    spotlight.style.setProperty('--spotlight-scale', (1 + progress * .045).toFixed(3));
+  }
+  const steps = [...document.querySelectorAll('[data-story-step]')];
+  if (!steps.length) return;
+  let active = 0;
+  const anchor = window.innerHeight * .52;
+  steps.forEach((step, index) => { if (step.getBoundingClientRect().top <= anchor) active = index; });
+  document.querySelectorAll('[data-story-image]').forEach((image, index) => image.classList.toggle('is-active', index === active));
+  document.querySelectorAll('[data-story-progress]').forEach((segment, index) => segment.classList.toggle('is-active', index <= active));
+}
+function queueHomeMotion() { if (!motionFrame) motionFrame = requestAnimationFrame(updateHomeMotion); }
+window.addEventListener('scroll', queueHomeMotion, { passive: true });
+window.addEventListener('resize', queueHomeMotion);
 
 function changeCart(handle, delta) {
   const product = productByHandle(handle); if (!product) return;
@@ -315,6 +324,7 @@ document.addEventListener('click', event => {
   }
   const el = event.target.closest('[data-action]'); if (!el) return;
   const action = el.dataset.action; const handle = el.dataset.handle;
+  if (action === 'scroll-discover') { document.getElementById('descobrir')?.scrollIntoView({ behavior: window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 'instant' : 'smooth' }); }
   if (action === 'menu-open') { state.menu = true; render(); }
   if (action === 'search-open') { state.search = true; render(); updateSuggestions(''); requestAnimationFrame(() => document.querySelector('.search-input')?.focus()); }
   if (action === 'overlay-close') { state.menu = false; state.search = false; state.drawer = false; render(); }

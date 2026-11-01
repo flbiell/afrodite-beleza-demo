@@ -1,0 +1,192 @@
+/* Afrodite demo: product-led visual direction. Loaded after the original component styles. */
+:root {
+  --forest: #5a2940;
+  --forest-deep: #341d2b;
+  --ink: #292428;
+  --muted: #6d666b;
+  --paper: #fff;
+  --ivory: #f8f6f6;
+  --line: #e7e1e3;
+  --serif: 'DM Sans', 'Segoe UI', sans-serif;
+  --pad: clamp(20px, 4vw, 64px);
+}
+body { background: var(--paper); color: var(--ink); }
+h1, h2, h3 { font-family: var(--sans); }
+h1, h2 { font-weight: 650; letter-spacing: -.055em; }
+h1 em, h2 em { font-style: normal; color: inherit; }
+.demo-strip { height: 26px; background: var(--forest-deep); font-size: 10px; letter-spacing: .035em; text-transform: none; }
+.demo-dot { background: #e6b6bb; }
+.site-header { background: #fff; backdrop-filter: none; box-shadow: 0 1px 0 var(--line); }
+.header-main { height: 76px; }
+.wordmark { color: var(--forest-deep); }
+.wordmark > span { font-family: 'DM Serif Display', Georgia, serif; font-size: 30px; letter-spacing: .075em; }
+.wordmark small { font-size: 8px; letter-spacing: .29em; }
+.desktop-nav { border-top: 1px solid #f3eff0; }
+.nav-inner { height: 43px; }
+.nav-inner a { font-size: 12px; font-weight: 600; letter-spacing: 0; text-transform: none; }
+.icon-button { transition: background .2s ease; }
+.icon-button:hover { transform: none; background: #f4edf0; }
+.button { border-radius: 3px; font-size: 13px; letter-spacing: 0; }
+.button:hover { transform: none; }
+.button-dark { background: var(--forest-deep); }
+.button-dark:hover { background: var(--forest); }
+.section-link, .text-link { font-size: 13px; letter-spacing: 0; }
+.eyebrow { font-size: 11px; letter-spacing: .03em; text-transform: none; }
+
+/* The hero uses one real catalogue photograph, with text kept off the product. */
+.spotlight { position: relative; height: clamp(620px, 78svh, 830px); overflow: hidden; background: #f1cdcf; }
+.spotlight-visual, .spotlight-visual img { position: absolute; inset: 0; width: 100%; height: 100%; }
+.spotlight-visual img { width: 110%; object-fit: cover; object-position: center 44%; transform: scale(var(--spotlight-scale, 1)); transform-origin: center left; transition: transform .12s linear; }
+.spotlight::after { content: ''; position: absolute; inset: 0; pointer-events: none; background: linear-gradient(90deg, #f3d9dbec 0%, #f3d9dbbf 26%, #f3d9db38 48%, transparent 70%); }
+.spotlight-content { height: 100%; position: relative; z-index: 1; display: flex; align-items: center; }
+.spotlight-copy { max-width: 500px; padding-bottom: 34px; }
+.spotlight-label { display: block; font-size: 13px; font-weight: 650; margin-bottom: 18px; }
+.spotlight h1 { font-size: clamp(58px, 6vw, 84px); line-height: .98; max-width: 500px; margin: 0 0 22px; }
+.spotlight-copy > p { font-size: 16px; font-weight: 500; margin: 0 0 30px; }
+.spotlight-actions { display: flex; align-items: center; gap: 24px; flex-wrap: wrap; }
+.spotlight-actions > span { font-size: 19px; font-weight: 700; }
+.spotlight-scroll { position: absolute; bottom: 32px; left: 0; display: inline-flex; align-items: center; gap: 12px; padding: 0; border: 0; background: transparent; color: var(--ink); font-size: 12px; font-weight: 650; }
+.spotlight-scroll span { font-size: 20px; transition: transform .2s ease; }
+.spotlight-scroll:hover span { transform: translateY(4px); }
+
+/* Simple retail navigation and real products replace decorative sections. */
+.home-categories { padding-top: 92px; padding-bottom: 104px; scroll-margin-top: 160px; }
+.home-section-head { display: flex; justify-content: space-between; align-items: end; gap: 25px; margin-bottom: 32px; }
+.home-section-head h2 { font-size: clamp(38px, 4vw, 58px); line-height: 1.08; margin: 0 0 8px; }
+.home-section-head p { margin: 0; color: var(--muted); font-size: 14px; }
+.home-categories .category-grid { grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 12px; }
+.home-categories .category-card { background: #f7f5f5; }
+.home-categories .category-visual { height: clamp(185px, 18vw, 270px); background: #f7f5f5; }
+.home-categories .category-card:nth-child(n) .category-visual { background: #f7f5f5; }
+.home-categories .category-visual img { object-fit: contain; mix-blend-mode: normal; }
+.home-categories .category-caption { min-height: 92px; padding: 16px; }
+.home-categories .category-caption h3 { font-size: 20px; font-weight: 650; letter-spacing: -.035em; margin: 4px 0 0; }
+.home-categories .category-caption > span:first-child { color: var(--muted); font-size: 10px; letter-spacing: 0; font-weight: 500; }
+.home-categories .round-arrow { border: 0; width: 26px; height: 26px; }
+.home-featured { padding: 92px 0 108px; background: #f8f6f6; }
+.home-featured .product-grid, .home-perfumes .product-grid { gap: clamp(12px, 1.6vw, 22px); }
+.home-products .product-card:nth-child(4) { display: block; }
+.product-image-wrap { aspect-ratio: 1 / 1.12; background: #f4f2f1; }
+.product-image-wrap img { background: #f4f2f1; }
+.product-image-wrap .product-image-secondary { position: absolute; inset: 0; opacity: 0; transition: opacity .3s ease, transform .5s ease; }
+.product-card:hover .product-image-wrap .product-image-secondary, .product-card:focus-within .product-image-wrap .product-image-secondary { opacity: 1; }
+.product-tag { background: var(--forest-deep); font-size: 10px; letter-spacing: 0; }
+.product-brand { color: var(--muted); font-size: 10px; letter-spacing: .025em; }
+.product-card h3 { font-size: 15px; font-weight: 600; }
+.card-prices strong { font-size: 15px; }
+.card-view { color: var(--forest-deep); letter-spacing: 0; font-size: 11px; }
+.home-perfumes { padding-top: 100px; padding-bottom: 110px; }
+
+/* One sustained scroll story, rather than entrance effects on every section. */
+.scroll-story { padding-top: 105px; padding-bottom: 100px; }
+.story-head { margin-bottom: 22px; }
+.story-layout { display: grid; grid-template-columns: minmax(0, .8fr) minmax(0, 1.2fr); gap: clamp(55px, 8vw, 130px); align-items: start; }
+.story-steps { min-width: 0; }
+.story-step { min-height: 72vh; display: flex; flex-direction: column; align-items: flex-start; justify-content: center; border-bottom: 1px solid var(--line); padding: 55px 0; }
+.story-step:last-child { border-bottom: 0; }
+.story-category { color: var(--forest); font-size: 13px; font-weight: 700; margin-bottom: 18px; }
+.story-step h3 { font-size: clamp(40px, 3.8vw, 62px); font-weight: 650; letter-spacing: -.055em; line-height: 1.03; margin: 0 0 18px; max-width: 500px; }
+.story-step p { color: var(--muted); font-size: 15px; margin: 0 0 13px; }
+.story-step strong { font-size: 18px; margin-bottom: 30px; }
+.story-step a { display: inline-flex; align-items: center; gap: 10px; border-bottom: 1px solid currentColor; padding-bottom: 6px; color: var(--forest-deep); font-size: 13px; font-weight: 700; }
+.story-step a svg { transition: transform .2s ease; }
+.story-step a:hover svg { transform: translateX(4px); }
+.story-inline-image { display: none; }
+.story-stage { position: sticky; top: 174px; height: min(65vh, 660px); min-height: 470px; overflow: hidden; background: #eae3e1; }
+.story-image-stack, .story-image { position: absolute; inset: 0; width: 100%; height: 100%; }
+.story-image { object-fit: cover; opacity: 0; transform: scale(1.035); transition: opacity .55s ease, transform .7s ease; }
+.story-image.is-active { opacity: 1; transform: scale(1); }
+.story-progress { position: absolute; z-index: 2; left: 24px; right: 24px; bottom: 24px; display: flex; gap: 7px; }
+.story-progress span { flex: 1; height: 3px; background: #fff8; }
+.story-progress span.is-active { background: var(--forest-deep); }
+.demo-note { background: #f1e5e9; padding: 30px 0; }
+.demo-note .container-wide { display: flex; justify-content: space-between; align-items: center; gap: 24px; }
+.demo-note p { margin: 0; font-size: 14px; }
+.demo-note a { display: inline-flex; align-items: center; gap: 8px; white-space: nowrap; font-size: 13px; font-weight: 700; }
+
+/* Carry the same restrained visual language into catalogue, product and footer. */
+.collection-hero { background: #f4eff1; }
+.collection-hero h1, .product-info h1, .cart-page-head h1, .story-hero h1, .support-intro h1 { font-weight: 650; letter-spacing: -.055em; }
+.collection-ornament { display: none; }
+.collection-hero img { mix-blend-mode: normal; }
+.category-pills a { border-radius: 3px; border-color: var(--line); }
+.main-product-image, .gallery-thumbs button, .cart-line-image { background: #f8f6f6; }
+.cart-summary, .empty-cart, .story-hero, .support-grid > a, .support-grid > div { background: #f8f6f6; }
+.story-photo { background: #f4eff1; }
+.footer { background: var(--forest-deep); color: #fff; }
+.wordmark-light { color: #fff; }
+.footer-brand p, .footer-col a, .footer-col p { color: #e1d8dd; }
+.footer-demo, .footer-bottom { color: #c9b9c2; }
+.footer-col h3 { color: #fff; letter-spacing: .04em; text-transform: none; font-size: 12px; }
+
+@media (max-width: 1024px) {
+  .home-categories .category-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  .home-categories .category-visual { height: 260px; }
+  .story-layout { gap: 40px; }
+  .story-stage { top: 108px; }
+}
+@media (max-width: 768px) {
+  .header-main { height: 68px; }
+  .spotlight { height: auto; display: flex; flex-direction: column; }
+  .spotlight-visual { position: relative; height: min(68vw, 520px); min-height: 340px; order: 1; }
+  .spotlight-visual img { width: 100%; object-position: center 40%; }
+  .spotlight::after { display: none; }
+  .spotlight-content { order: 2; height: auto; display: block; padding-top: 32px; padding-bottom: 42px; }
+  .spotlight-copy { padding: 0; }
+  .spotlight h1 { font-size: clamp(52px, 10vw, 76px); }
+  .spotlight-scroll { display: none; }
+  .home-categories { padding-top: 76px; padding-bottom: 80px; }
+  .home-featured { padding: 78px 0 84px; }
+  .scroll-story { padding-top: 78px; padding-bottom: 70px; }
+  .story-layout { display: block; }
+  .story-stage { display: none; }
+  .story-step { min-height: 0; padding: 28px 0 60px; margin-bottom: 24px; }
+  .story-step h3 { font-size: clamp(37px, 7vw, 56px); }
+  .story-inline-image { display: block; width: 100%; aspect-ratio: 1.15; object-fit: cover; margin-top: 28px; }
+  .home-perfumes { padding-top: 75px; padding-bottom: 82px; }
+}
+@media (max-width: 600px) {
+  :root { --pad: 18px; }
+  .wordmark > span { font-size: 24px; }
+  .wordmark small { font-size: 6px; }
+  .spotlight-visual { height: 92vw; min-height: 0; }
+  .spotlight-content { padding-top: 29px; padding-bottom: 40px; }
+  .spotlight-label { font-size: 12px; margin-bottom: 12px; }
+  .spotlight h1 { font-size: clamp(45px, 12vw, 65px); margin-bottom: 14px; }
+  .spotlight-copy > p { font-size: 13px; margin-bottom: 24px; }
+  .spotlight-actions .button { min-height: 47px; }
+  .spotlight-actions > span { font-size: 15px; }
+  .home-categories { padding-bottom: 55px; }
+  .home-featured { padding-top: 58px; padding-bottom: 64px; }
+  .scroll-story { padding-top: 64px; }
+  .home-section-head { align-items: start; margin-bottom: 23px; }
+  .home-section-head h2 { font-size: 36px; }
+  .home-section-head p { font-size: 12px; }
+  .home-section-head .section-link { font-size: 12px; white-space: nowrap; margin-top: 8px; }
+  .home-categories .category-grid { display: flex; gap: 10px; overflow-x: auto; scroll-snap-type: x mandatory; margin-right: calc(-1 * var(--pad)); padding-right: var(--pad); scrollbar-width: none; }
+  .home-categories .category-grid::-webkit-scrollbar { display: none; }
+  .home-categories .category-card { flex: 0 0 min(47vw, 230px); scroll-snap-align: start; }
+  .home-categories .category-visual { height: min(49vw, 240px); }
+  .home-categories .category-caption { min-height: 83px; padding: 12px; }
+  .home-categories .category-caption h3 { font-size: 17px; }
+  .home-categories .category-caption > span:first-child { font-size: 9px; }
+  .home-categories .round-arrow { display: none; }
+  .product-card h3 { font-size: 13px; }
+  .product-brand { font-size: 9px; }
+  .card-prices strong { font-size: 13px; }
+  .story-step p { font-size: 13px; }
+  .demo-note .container-wide { align-items: start; flex-direction: column; gap: 8px; }
+  .demo-note p { font-size: 12px; }
+  .demo-note a { font-size: 12px; }
+}
+@media (max-width: 430px) {
+  .home-section-head { flex-direction: column; gap: 10px; }
+  .home-section-head .section-link { margin-top: 0; }
+}
+@media (hover: none) {
+  .product-image-wrap .product-image-secondary { display: none; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .spotlight-visual img, .story-image, .story-step a svg { transition: none; transform: none !important; }
+  .product-image-wrap .product-image-secondary { display: none; }
+}
